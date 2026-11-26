@@ -131,7 +131,7 @@
 
 <div class="card">
   <h2>📈 查看历史</h2>
-  <button class="primary" id="history" style="background:var(--accent2)">打开历史打卡记录</button>
+  <button class="primary" id="history" style="background:var(--accent2)">生成查询指令（发给助手查历史）</button>
 </div>
 
 <footer>
@@ -175,8 +175,10 @@ function buildBody(){
   return lines.join('\n');
 }
 
+function setResultHint(txt){ const h=$('resultBox').querySelector('div'); if(h) h.textContent=txt; }
 $('save').onclick = function(){
   const text = buildBody();
+  setResultHint('✓ 已整理好，复制下面内容发给助手，由我写入 GitHub：');
   $('resultText').value = text;
   $('resultBox').classList.remove('hidden');
   $('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
@@ -194,7 +196,11 @@ $('copyBtn').onclick = async function(){
 };
 
 $('history').onclick = function(){
-  window.location.href = 'https://github.com/' + REPO + '/issues?q=label%3A%E6%AF%8F%E6%97%A5%E6%89%93%E5%8D%A1';
+  setResultHint('✓ 已生成查询指令，复制发给助手，我来查全部历史记录：');
+  $('resultText').value = '请帮我查询我所有的历史打卡记录（按日期列出，含用药与各项评分），并做个趋势小结。';
+  $('resultBox').classList.remove('hidden');
+  $('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('已生成查询指令，请复制发给我');
 };
 </script>
 </body>
