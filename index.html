@@ -42,6 +42,7 @@
     padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:99}
   .toast.show{opacity:1}
   .danger{color:var(--danger);font-weight:700}
+  .result-box{background:#eef6f2;border:1px solid #cfe3d9;border-radius:12px;padding:12px;margin-top:12px}
   footer{font-size:11px;color:var(--muted);text-align:center;margin:8px 0 24px;line-height:1.7}
 </style>
 </head>
@@ -119,8 +120,13 @@
   <label>备注<span class="hint">选填，如上火 / 胃胀 / 新不适</span></label>
   <textarea id="note" placeholder="例如：饭后腹胀、放屁较多、舌苔偏白腻…"></textarea>
 
-  <button class="primary" id="save">提交今日记录 →</button>
-  <p style="font-size:11px;color:var(--muted);text-align:center;margin:8px 0 0">点提交后会跳转到 GitHub，再点一下绿色 <b>Submit new issue</b> 即存好</p>
+  <button class="primary" id="save">生成打卡文本</button>
+  <div id="resultBox" class="result-box hidden">
+    <div style="font-size:12px;color:var(--accent2);font-weight:700;margin-bottom:6px">✓ 已整理好，复制下面内容发给尊者助手，由我写入 GitHub：</div>
+    <textarea id="resultText" readonly style="min-height:150px;font-size:12px"></textarea>
+    <button class="primary" id="copyBtn" style="background:var(--accent2);margin-top:8px">📋 一键复制</button>
+  </div>
+  <p style="font-size:11px;color:var(--muted);text-align:center;margin:8px 0 0">点选后不再跳转；复制文本发给助手，我直接提交进私有仓库</p>
 </div>
 
 <div class="card">
@@ -170,11 +176,21 @@ function buildBody(){
 }
 
 $('save').onclick = function(){
-  const body = buildBody();
-  const title = '[打卡] ' + ($('date').value || today());
-  const url = 'https://github.com/' + REPO + '/issues/new?title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body) + '&labels=' + encodeURIComponent('每日打卡');
-  toast('已整理好，正在跳转到 GitHub…');
-  window.location.href = url;
+  const text = buildBody();
+  $('resultText').value = text;
+  $('resultBox').classList.remove('hidden');
+  $('resultBox').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('已整理好，请复制发给助手');
+};
+$('copyBtn').onclick = async function(){
+  const t = $('resultText');
+  try{
+    await navigator.clipboard.writeText(t.value);
+    toast('✓ 已复制，粘贴到对话框发给助手即可');
+  }catch(e){
+    t.select(); document.execCommand('copy');
+    toast('✓ 已复制，粘贴到对话框发给助手即可');
+  }
 };
 
 $('history').onclick = function(){
