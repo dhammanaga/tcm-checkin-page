@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>私人中医 · 每日打卡</title>
+<style>
+  :root{
+    --bg:#f7f5f0; --card:#ffffff; --ink:#2b2b2b; --muted:#777;
+    --line:#e4e0d6; --accent:#b5602e; --accent2:#3a7d6e; --danger:#c0392b; --soft:#fff4ea;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;padding:16px;max-width:560px;margin:0 auto}
+  header{text-align:center;margin-bottom:8px}
+  header h1{font-size:20px;margin:0 0 2px}
+  header p{font-size:12px;color:var(--muted);margin:0}
+  .disclaimer{background:var(--soft);border:1px solid #f0d9c4;border-radius:10px;
+    padding:10px 12px;font-size:12px;color:#8a5a2b;margin:10px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{font-size:14px;margin:0 0 10px;color:var(--accent);display:flex;align-items:center;gap:6px}
+  label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px}
+  .hint{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
+  input[type=date],input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:14px}
+  select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:14px;background:#fff}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts label{margin:0;font-weight:400;font-size:13px;background:#faf8f3;border:1px solid var(--line);
+    border-radius:20px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .opts input{margin:0}
+  .seg{display:flex;gap:6px}
+  .seg label{flex:1;margin:0;text-align:center;font-weight:400;background:#faf8f3;border:1px solid var(--line);
+    border-radius:9px;padding:8px 0;cursor:pointer;font-size:13px}
+  .seg input{display:none}
+  .seg input:checked+span{color:var(--accent);font-weight:700}
+  textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px;font-size:13px;
+    min-height:54px;resize:vertical;font-family:inherit}
+  button.primary{width:100%;background:var(--accent);color:#fff;border:0;border-radius:11px;
+    padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px}
+  button.primary:active{transform:translateY(1px)}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#2b2b2b;color:#fff;
+    padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1}
+  .danger{color:var(--danger);font-weight:700}
+  footer{font-size:11px;color:var(--muted);text-align:center;margin:8px 0 24px;line-height:1.7}
+</style>
+</head>
+<body>
+<header>
+  <h1>🐱 私人中医 · 每日打卡</h1>
+  <p>基于六医会诊观察卡 · 点选即可 · 数据存入私有仓库</p>
+</header>
+
+<div class="disclaimer">
+  ⚠️ <b>学习参考，非处方</b>。本表仅用于记录每日身体信号，供面诊时参考。
+  任何用药调整、西药减停须遵医嘱。出现 <b class="danger">歪嘴加重 / 肢体麻木无力 / 言语不清</b> 请立即就医（中风先兆）。
+</div>
+
+<div class="card">
+  <h2>📋 今日记录</h2>
+  <label>日期<span class="hint">默认今天</span></label>
+  <input type="date" id="date">
+
+  <label>当日用药<span class="hint">可多选</span></label>
+  <div class="opts" id="meds">
+    <label><input type="checkbox" value="附子理中丸">附子理中丸</label>
+    <label><input type="checkbox" value="生脉饮（党参版）">生脉饮</label>
+    <label><input type="checkbox" value="人参归脾丸">人参归脾丸</label>
+    <label><input type="checkbox" value="玉屏风颗粒">玉屏风颗粒</label>
+    <label><input type="checkbox" value="辅酶Q10">辅酶Q10</label>
+    <label><input type="checkbox" value="缬沙坦氨氯地平（I）">缬沙坦氨氯地平</label>
+    <label><input type="checkbox" value="乙哌立松">乙哌立松</label>
+    <label><input type="checkbox" value="维生素B2">维生素B2</label>
+    <label><input type="checkbox" value="氨糖软骨素MSM">氨糖软骨素MSM</label>
+    <label><input type="checkbox" value="碳酸钙D3">碳酸钙D3</label>
+    <label><input type="checkbox" value="地塞米松软膏">地塞米松软膏</label>
+    <label><input type="checkbox" value="六味地黄丸">六味地黄丸</label>
+    <label><input type="checkbox" value="其他">其他</label>
+  </div>
+
+  <label>吃药次数<span class="hint">单选，默认 1 次</span></label>
+  <div class="seg" id="doseWrap">
+    <label><input type="radio" name="dose" value="1 次" checked><span>1 次</span></label>
+    <label><input type="radio" name="dose" value="2 次"><span>2 次</span></label>
+    <label><input type="radio" name="dose" value="3 次及以上"><span>3 次及以上</span></label>
+  </div>
+
+  <label>便溏程度<span class="hint">1最重·5最轻</span></label>
+  <select id="stool"><option value="5" selected>5 成形正常</option><option value="4">4 偏软</option><option value="3">3 稀溏</option><option value="2">2 常溏</option><option value="1">1 严重泄泻</option></select>
+
+  <label>自汗 / 盗汗<span class="hint">1最重·5最轻</span></label>
+  <select id="sweat"><option value="5" selected>5 基本不出</option><option value="4">4 偶汗</option><option value="3">3 常汗</option><option value="2">2 稍动即汗</option><option value="1">1 大汗不止</option></select>
+
+  <label>精神 / 嗜睡<span class="hint">1最差·5最好</span></label>
+  <select id="energy"><option value="5" selected>5 精神好</option><option value="4">4 尚可</option><option value="3">3 易疲</option><option value="2">2 常困</option><option value="1">1 睡10h仍累</option></select>
+
+  <label>口干 / 口渴<span class="hint">1最重·5最轻</span></label>
+  <select id="thirst"><option value="5" selected>5 不渴</option><option value="4">4 微渴</option><option value="3">3 常渴</option><option value="2">2 多饮</option><option value="1">1 不停喝水</option></select>
+
+  <label>心悸<span class="hint">单选</span></label>
+  <div class="seg">
+    <label><input type="radio" name="palp" value="无" checked><span>无</span></label>
+    <label><input type="radio" name="palp" value="有"><span>有</span></label>
+  </div>
+
+  <label>睡眠<span class="hint">1最差·5最好</span></label>
+  <select id="sleep"><option value="5" selected>5 安睡</option><option value="4">4 尚可</option><option value="3">3 易醒</option><option value="2">2 差</option><option value="1">1 难入睡</option></select>
+
+  <label>情绪 / 心情<span class="hint">1最差·5最好</span></label>
+  <select id="mood"><option value="5">5 轻松愉快</option><option value="4" selected>4 平稳</option><option value="3">3 略闷</option><option value="2">2 低落易疲</option><option value="1">1 兴趣缺、想躲起来</option></select>
+
+  <label>白天光照偏好<span class="hint">对应「拉帘开灯」的情况</span></label>
+  <div class="seg" id="lightWrap">
+    <label><input type="radio" name="light" value="正常拉开帘" checked><span>正常拉开帘</span></label>
+    <label><input type="radio" name="light" value="拉帘开灯"><span>拉帘开灯</span></label>
+    <label><input type="radio" name="light" value="避光不出门"><span>避光不出门</span></label>
+  </div>
+
+  <label>备注<span class="hint">选填，如上火 / 胃胀 / 新不适</span></label>
+  <textarea id="note" placeholder="例如：饭后腹胀、放屁较多、舌苔偏白腻…"></textarea>
+
+  <button class="primary" id="save">提交今日记录 →</button>
+  <p style="font-size:11px;color:var(--muted);text-align:center;margin:8px 0 0">点提交后会跳转到 GitHub，再点一下绿色 <b>Submit new issue</b> 即存好</p>
+</div>
+
+<div class="card">
+  <h2>📈 查看历史</h2>
+  <button class="primary" id="history" style="background:var(--accent2)">打开历史打卡记录</button>
+</div>
+
+<footer>
+  数据存入私有仓库 <b>dhammanaga/my-personal-health-library</b> 的 issue，永久保存、可检索。<br>
+  本页为静态界面，不含任何个人健康数据。
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const REPO = 'dhammanaga/my-personal-health-library';
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function toast(msg, ms){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'), ms||2600); }
+function picked(name, fallback){ const el=document.querySelector('input[name='+name+']:checked'); return el?el.value:fallback; }
+function selText(id){ const el=$(id); return el.options[el.selectedIndex].text; }
+
+$('date').value = today();
+
+function buildBody(){
+  const meds = [...document.querySelectorAll('#meds input:checked')].map(c=>c.value).join('、') || '—';
+  const lines = [
+    '每日中医打卡',
+    '日期：' + ($('date').value || today()),
+    '',
+    '用药：' + meds,
+    '吃药次数：' + picked('dose','1 次'),
+    '',
+    '便溏：' + selText('stool'),
+    '自汗盗汗：' + selText('sweat'),
+    '精神：' + selText('energy'),
+    '口干：' + selText('thirst'),
+    '心悸：' + picked('palp','无'),
+    '睡眠：' + selText('sleep'),
+    '情绪：' + selText('mood'),
+    '光照：' + picked('light','正常拉开帘'),
+    '备注：' + ($('note').value.trim() || '—'),
+    '',
+    '⚠️ 红线：歪嘴加重/肢体麻木/言语不清→立即就医；西药勿擅自停用。'
+  ];
+  return lines.join('\n');
+}
+
+$('save').onclick = function(){
+  const body = buildBody();
+  const title = '[打卡] ' + ($('date').value || today());
+  const url = 'https://github.com/' + REPO + '/issues/new?title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body) + '&labels=' + encodeURIComponent('每日打卡');
+  toast('已整理好，正在跳转到 GitHub…');
+  window.location.href = url;
+};
+
+$('history').onclick = function(){
+  window.location.href = 'https://github.com/' + REPO + '/issues?q=label%3A%E6%AF%8F%E6%97%A5%E6%89%93%E5%8D%A1';
+};
+</script>
+</body>
+</html>
